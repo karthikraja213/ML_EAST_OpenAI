@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .chat-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-header {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .chat-messages {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .user-message {
+            float: right;
+            background-color: #4CAF50;
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px;
+            max-width: 70%;
+            clear: both;
+        }
+
+        .bot-message {
+            float: left;
+            background-color: #ddd;
+            border-radius: 8px;
+            padding: 8px;
+            max-width: 70%;
+            clear: both;
+        }
+
+        .chat-input {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f4f4f4;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #sendButton {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>E.A.S.T.</h2>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Chat messages will be displayed here -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Type your message...">
+            <button onclick="sendMessage()" id="sendButton">Send</button>
+        </div>
+    </div>
+    <audio controls autoplay  id="audio" src="/static/output.mp3"></audio>
+    
+   <!-- Play button -->
+    <button onclick="playAudio()">Play</button>
+    <script>
+        function sendMessage() {
+            var userInput = document.getElementById('userInput').value;
+            if (userInput.trim() === '') {
+                return;
+            }
+
+            appendMessage('user', userInput);
+            document.getElementById('userInput').value = '';
+
+            // Make an AJAX request to the Flask server
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/chat', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var botResponse = JSON.parse(xhr.responseText).bot_response;
+                    appendMessage('bot', botResponse);
+                    xhr.open('GET','/play',true)
+                }
+
+            };
+            var data = JSON.stringify({ 'user_message': userInput });
+            xhr.send(data);
+        }
+
+        function appendMessage(sender, message) {
+            var chatMessages = document.getElementById('chatMessages');
+            var newMessage = document.createElement('div');
+            newMessage.className = sender + '-message';
+            newMessage.textContent = message;
+            chatMessages.appendChild(newMessage);
+            
+
+            // Scroll to the bottom of the chat container to show the latest messages
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        function playSound(audioname){
+            let audio = new Audio(audioname)
+            audio.play()
+        }
+        const ctx = new AudioContext();
+        let audio;
+        fetch("C:\Users\kkart\OneDrive\Karthik\project\static\output.mp3")
+	        .then(data => data.arrayBuffer())
+	        .then(arrayBuffer => ctx.decodeAudioData(arrayBuffer))
+	        .then(decodedAudio => {
+		    audio = decodedAudio;
+        
+	        });
+        function playback() {
+            const playSound = ctx.createBufferSource();
+            playSound.buffer = audio;
+            playSound.connect(ctx.destination);
+            playSound.start(ctx.currentTime);
+        }
+       
+        let myAudio = document.querySelector('#audio');
+
+        // Function to play the audio
+        function playAudio() {
+        myAudio.play();}
+
+        
+        </script>
+
+    
+</body>
+</html>

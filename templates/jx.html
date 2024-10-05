@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <audio controls autoplay  id="audio" src="output.mp3"></audio>
+    
+    <!-- Play button -->
+    <button onclick="playAudio()">Play</button>
+
+    <script>
+        let myAudio = document.querySelector('#audio');
+
+        // Function to play the audio
+        function playAudio() {
+            myAudio.play();
+        }
+    </script>
+</body>
+
+</html>
