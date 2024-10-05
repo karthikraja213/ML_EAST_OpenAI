@@ -1,1 +1,1 @@
-ADD your api key from OPENAI wherever required.
+Please add your api key from OPENAI wherever you need it.
